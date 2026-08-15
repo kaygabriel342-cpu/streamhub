@@ -1,0 +1,56 @@
+{
+  "appId": "com.streamhub.app",
+  "productName": "StreamHub",
+  "version": "1.0.0",
+  "description": "Watch Movies & TV Shows with Friends",
+  "author": "StreamHub Team",
+  "main": "electron-main.js",
+  "build": {
+    "appId": "com.streamhub.app",
+    "productName": "StreamHub",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "electron-main.js",
+      ".next/**/*",
+      "public/**/*",
+      "package.json",
+      "node_modules/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "public/icon-256.png",
+      "artifactName": "${productName}-${version}-Setup.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "StreamHub"
+    },
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "icon": "public/icon-256.png",
+      "category": "Video"
+    },
+    "mac": {
+      "target": ["dmg"],
+      "icon": "public/icon-256.png",
+      "category": "public.app-category.entertainment"
+    }
+  },
+  "scripts": {
+    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:3000 && electron .\"",
+    "electron:build": "npm run build && electron-builder",
+    "electron:build:win": "npm run build && electron-builder --win",
+    "electron:build:linux": "npm run build && electron-builder --linux",
+    "electron:build:mac": "npm run build && electron-builder --mac"
+  }
+}
