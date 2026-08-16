@@ -98,43 +98,43 @@ export default function Home() {
 
         <div className="-mt-32 relative z-10 space-y-8">
           <ContentRow
-            title="🔥 Trending Now"
+            title="Trending Now"
             items={trending.slice(0, 14)}
             viewAllHref="/trending"
           />
           
           <ContentRow
-            title="🆕 Newly Released"
+            title="New Releases"
             items={newReleases}
             viewAllHref="/movies/new"
           />
           
           <ContentRow
-            title="🎬 Popular Movies"
+            title="Popular Movies"
             items={popularMovies.slice(0, 14)}
             viewAllHref="/movies/popular"
           />
           
           <ContentRow
-            title="📺 Popular TV Shows"
+            title="Popular TV Shows"
             items={popularTV.slice(0, 14)}
             viewAllHref="/tv/popular"
           />
           
           <ContentRow
-            title="⭐ Top Rated Movies"
+            title="Top Rated Movies"
             items={topRatedMovies.slice(0, 14)}
             viewAllHref="/movies/top-rated"
           />
           
           <ContentRow
-            title="🏆 Top Rated TV Shows"
+            title="Top Rated TV Shows"
             items={topRatedTV.slice(0, 14)}
             viewAllHref="/tv/top-rated"
           />
 
           <ContentRow
-            title="🎉 Watch Parties"
+            title="Watch Parties"
             items={trending.slice(6, 14)}
             viewAllHref="/watch-parties"
           />
