@@ -110,7 +110,7 @@ export default function Home() {
         <Header onSearch={handleSearch} />
         
         <main>
-          {heroMedia && <Hero media={heroMedia} />}
+          <Hero items={trending.slice(0, 8)} media={heroMedia || undefined} />
 
           <div className="-mt-32 relative z-10 space-y-8">
             <ContentRow

@@ -121,6 +121,8 @@ Add these in Netlify Dashboard → Site Settings → Environment Variables:
 ```
 TMDB_API_KEY=8cf03ecf0cacc0582ea33c57b5efd815
 TMDB_ACCESS_TOKEN=eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI4Y2YwM2VjZjBjYWNjMDU4MmVhMzNjNTdiNWVmZDgxNSIsIm5iZiI6MTc4NjE3MzI5OC45NzEsInN1YiI6IjZhNzZkNzcyN2Q4ZjE5NDVjOTRkNjQ4OCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.1d6kNfrQOFoQkf5qFbOKOdHvfzwSL-DScbGz8ZQ3yVY
+ADMIN_EMAIL=admin@marquee.com
+ADMIN_PASSWORD=Kuya@254
 ```
 
 ### For Local Development
@@ -130,6 +132,8 @@ Create a `.env` file:
 ```env
 TMDB_API_KEY=8cf03ecf0cacc0582ea33c57b5efd815
 TMDB_ACCESS_TOKEN=eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI4Y2YwM2VjZjBjYWNjMDU4MmVhMzNjNTdiNWVmZDgxNSIsIm5iZiI6MTc4NjE3MzI5OC45NzEsInN1YiI6IjZhNzZkNzcyN2Q4ZjE5NDVjOTRkNjQ4OCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.1d6kNfrQOFoQkf5qFbOKOdHvfzwSL-DScbGz8ZQ3yVY
+ADMIN_EMAIL=admin@marquee.com
+ADMIN_PASSWORD=Kuya@254
 ```
 
 ## 📄 License

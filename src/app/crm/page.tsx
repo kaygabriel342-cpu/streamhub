@@ -86,12 +86,45 @@ export default function CRMPage() {
   const [analytics] = useState<Analytics>(sampleAnalytics);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProfile, setSelectedProfile] = useState<UserProfile | null>(null);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [allowed, setAllowed] = useState(false);
+
+  useEffect(() => {
+    async function checkAdmin() {
+      try {
+        const response = await fetch('/api/auth/me');
+        const data = await response.json();
+        if (!data.isAdmin) {
+          window.location.href = '/login?next=/crm';
+          return;
+        }
+        setAllowed(true);
+      } catch {
+        window.location.href = '/login?next=/crm';
+      } finally {
+        setCheckingAuth(false);
+      }
+    }
+
+    checkAdmin();
+  }, []);
 
   const filteredProfiles = profiles.filter(
     (profile) =>
       profile.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       profile.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  if (checkingAuth || !allowed) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#0a0a0a]">
+        <div className="text-center">
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-[#e50914] border-t-transparent" />
+          <p className="text-[#b3b3b3]">Checking admin access...</p>
+        </div>
+      </div>
+    );
+  }
 
   const formatWatchTime = (minutes: number) => {
     const hours = Math.floor(minutes / 60);

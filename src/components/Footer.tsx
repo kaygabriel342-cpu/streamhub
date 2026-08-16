@@ -37,12 +37,12 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="mb-4 font-semibold text-white">Admin</h3>
+            <h3 className="mb-4 font-semibold text-white">Platform</h3>
             <ul className="space-y-2">
-              <li><Link href="/crm" className="text-[#666] transition-colors hover:text-white">CRM Dashboard</Link></li>
-              <li><span className="text-[#666]">Analytics</span></li>
-              <li><span className="text-[#666]">Profiles</span></li>
-              <li><span className="text-[#666]">Content Tools</span></li>
+              <li><span className="text-[#666]">Provider Discovery</span></li>
+              <li><span className="text-[#666]">Live TV Player</span></li>
+              <li><span className="text-[#666]">Anime Catalogs</span></li>
+              <li><span className="text-[#666]">Responsive PWA</span></li>
             </ul>
           </div>
         </div>

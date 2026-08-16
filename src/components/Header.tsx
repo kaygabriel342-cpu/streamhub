@@ -9,6 +9,8 @@ interface Profile {
   id: string;
   name: string;
   avatar: string;
+  email?: string;
+  role?: string;
 }
 
 export default function Header({ onSearch }: { onSearch?: (query: string) => void }) {
@@ -19,6 +21,8 @@ export default function Header({ onSearch }: { onSearch?: (query: string) => voi
   const [showProfiles, setShowProfiles] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const [currentProfile, setCurrentProfile] = useState<Profile | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isSignedIn, setIsSignedIn] = useState(false);
 
   // Anime character avatars for profiles
   const [profiles] = useState<Profile[]>([
@@ -40,13 +44,33 @@ export default function Header({ onSearch }: { onSearch?: (query: string) => voi
   ]);
 
   useEffect(() => {
-    const saved = localStorage.getItem('currentProfile');
-    if (saved) {
-      setCurrentProfile(JSON.parse(saved));
-    } else if (profiles.length > 0) {
-      setCurrentProfile(profiles[0]);
-      localStorage.setItem('currentProfile', JSON.stringify(profiles[0]));
+    async function loadSession() {
+      try {
+        const response = await fetch('/api/auth/me');
+        const data = await response.json();
+        if (data.user) {
+          setCurrentProfile(data.user);
+          setIsSignedIn(true);
+          setIsAdmin(Boolean(data.isAdmin));
+          localStorage.setItem('currentProfile', JSON.stringify(data.user));
+          return;
+        }
+      } catch {
+        // Continue with local profile fallback.
+      }
+
+      const saved = localStorage.getItem('currentProfile');
+      if (saved) {
+        setCurrentProfile(JSON.parse(saved));
+      } else if (profiles.length > 0) {
+        setCurrentProfile(profiles[0]);
+        localStorage.setItem('currentProfile', JSON.stringify(profiles[0]));
+      }
+      setIsSignedIn(false);
+      setIsAdmin(false);
     }
+
+    loadSession();
   }, [profiles]);
 
   useEffect(() => {
@@ -71,9 +95,20 @@ export default function Header({ onSearch }: { onSearch?: (query: string) => voi
     setShowProfileMenu(false);
   };
 
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    localStorage.removeItem('currentProfile');
+    setIsSignedIn(false);
+    setIsAdmin(false);
+    setCurrentProfile(profiles[0]);
+    setShowProfileMenu(false);
+    router.push('/');
+    router.refresh();
+  };
+
   return (
     <>
-      <Sidebar isOpen={showSidebar} onClose={() => setShowSidebar(false)} />
+      <Sidebar isOpen={showSidebar} onClose={() => setShowSidebar(false)} isAdmin={isAdmin} />
       
       <header
         className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ${
@@ -117,9 +152,14 @@ export default function Header({ onSearch }: { onSearch?: (query: string) => voi
                   <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
                   Live TV
                 </Link>
-                <Link href="/crm" className="text-[#b3b3b3] hover:text-white font-medium transition-colors text-sm">
-                  CRM
+                <Link href="/providers" className="text-[#b3b3b3] hover:text-white font-medium transition-colors text-sm">
+                  Providers
                 </Link>
+                {isAdmin && (
+                  <Link href="/crm" className="text-[#b3b3b3] hover:text-white font-medium transition-colors text-sm">
+                    CRM
+                  </Link>
+                )}
               </nav>
             </div>
 
@@ -201,19 +241,29 @@ export default function Header({ onSearch }: { onSearch?: (query: string) => voi
                     </div>
 
                     <div className="p-2">
-                      <Link href="/account" className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#2a2a2a] transition-colors">
-                        <svg className="w-5 h-5 text-[#b3b3b3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        <span className="text-white text-sm">Account</span>
-                      </Link>
-                      <Link href="/help" className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#2a2a2a] transition-colors">
-                        <svg className="w-5 h-5 text-[#b3b3b3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span className="text-white text-sm">Help Center</span>
-                      </Link>
+                      {isSignedIn ? (
+                        <button onClick={handleLogout} className="flex w-full items-center gap-3 p-2 rounded-lg hover:bg-[#2a2a2a] transition-colors text-left">
+                          <svg className="w-5 h-5 text-[#b3b3b3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1" />
+                          </svg>
+                          <span className="text-white text-sm">Sign out</span>
+                        </button>
+                      ) : (
+                        <Link href="/login" className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#2a2a2a] transition-colors">
+                          <svg className="w-5 h-5 text-[#b3b3b3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14" />
+                          </svg>
+                          <span className="text-white text-sm">Sign in</span>
+                        </Link>
+                      )}
+                      {isAdmin && (
+                        <Link href="/crm" className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#2a2a2a] transition-colors">
+                          <svg className="w-5 h-5 text-[#b3b3b3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10" />
+                          </svg>
+                          <span className="text-white text-sm">CRM Dashboard</span>
+                        </Link>
+                      )}
                     </div>
                   </div>
                 )}
