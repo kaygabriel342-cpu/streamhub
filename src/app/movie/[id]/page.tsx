@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, use } from 'react';
-import { useRouter } from 'next/navigation';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import Header from '@/components/Header';
@@ -13,10 +13,8 @@ import { TMDBMovieDetails, TMDBMedia } from '@/lib/tmdb/types';
 
 export default function MoviePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const router = useRouter();
   const [movie, setMovie] = useState<TMDBMovieDetails | null>(null);
   const [loading, setLoading] = useState(true);
-  const [creatingParty, setCreatingParty] = useState(false);
 
   useEffect(() => {
     async function fetchMovie() {
@@ -33,31 +31,6 @@ export default function MoviePage({ params }: { params: Promise<{ id: string }> 
 
     fetchMovie();
   }, [id]);
-
-  const handleCreateWatchParty = async () => {
-    if (!movie) return;
-    
-    setCreatingParty(true);
-    try {
-      const res = await fetch('/api/watch-parties', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: `${movie.title} Watch Party`,
-          hostId: 'anonymous-user',
-          tmdbId: movie.id,
-          mediaType: 'movie',
-        }),
-      });
-      
-      const party = await res.json();
-      router.push(`/watch-party/${party.id}`);
-    } catch (error) {
-      console.error('Error creating watch party:', error);
-    } finally {
-      setCreatingParty(false);
-    }
-  };
 
   if (loading) {
     return (
@@ -178,16 +151,7 @@ export default function MoviePage({ params }: { params: Promise<{ id: string }> 
                   </svg>
                   Watch Now
                 </Link>
-                <button
-                  onClick={handleCreateWatchParty}
-                  disabled={creatingParty}
-                  className="flex items-center gap-2 px-6 py-4 bg-[#2a2a2a] hover:bg-[#333] disabled:bg-[#666] text-white font-semibold rounded-lg transition-colors border border-[#333]"
-                >
-                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z" />
-                  </svg>
-                  {creatingParty ? 'Creating...' : 'Watch Party'}
-                </button>
+
                 <button
                   className="flex items-center gap-2 px-6 py-4 bg-[#2a2a2a] hover:bg-[#333] text-white font-semibold rounded-lg transition-colors border border-[#333]"
                 >

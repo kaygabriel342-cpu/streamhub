@@ -14,7 +14,7 @@ interface UserProfile {
   lastActive: string;
   watchHistory: number;
   favorites: number;
-  watchParties: number;
+  liveSessions: number;
 }
 
 interface Analytics {
@@ -37,7 +37,7 @@ const sampleProfiles: UserProfile[] = [
     lastActive: '2 minutes ago',
     watchHistory: 156,
     favorites: 42,
-    watchParties: 8,
+    liveSessions: 8,
   },
   {
     id: '2',
@@ -49,7 +49,7 @@ const sampleProfiles: UserProfile[] = [
     lastActive: '1 hour ago',
     watchHistory: 203,
     favorites: 67,
-    watchParties: 15,
+    liveSessions: 15,
   },
   {
     id: '3',
@@ -61,7 +61,7 @@ const sampleProfiles: UserProfile[] = [
     lastActive: '3 hours ago',
     watchHistory: 45,
     favorites: 12,
-    watchParties: 2,
+    liveSessions: 2,
   },
 ];
 
@@ -399,8 +399,8 @@ export default function CRMPage() {
                     <p className="text-white font-medium">{selectedProfile.favorites} titles</p>
                   </div>
                   <div className="bg-[#222] rounded-lg p-4">
-                    <p className="text-[#666] text-sm">Watch Parties</p>
-                    <p className="text-white font-medium">{selectedProfile.watchParties} parties</p>
+                    <p className="text-[#666] text-sm">Live Sessions</p>
+                    <p className="text-white font-medium">{selectedProfile.liveSessions} sessions</p>
                   </div>
                 </div>
                 <div className="flex gap-4 mt-6">

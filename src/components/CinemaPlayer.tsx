@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { STREAMING_SOURCES } from '@/lib/movies/api';
 
 interface CinemaPlayerProps {
   tmdbId: number;
@@ -34,7 +35,7 @@ export default function CinemaPlayer({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isTheaterMode, setIsTheaterMode] = useState(false);
-  const [selectedSource, setSelectedSource] = useState('vidsrc');
+  const [selectedSource, setSelectedSource] = useState('vidcore');
   const [isLoading, setIsLoading] = useState(true);
   const [showSources, setShowSources] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -43,63 +44,14 @@ export default function CinemaPlayer({
   const [showControls, setShowControls] = useState(true);
   const controlsTimeoutRef = useRef<number | null>(null);
 
-  // Multiple streaming sources - like Dulo.gd
-  const sources: StreamingSource[] = [
-    {
-      id: 'vidsrc',
-      name: 'VidSrc Pro',
-      quality: '4K',
-      getUrl: () => mediaType === 'movie'
-        ? `https://vidsrc.sbs/embed/movie/${tmdbId}?autoplay=${autoPlay ? '1' : '0'}`
-        : `https://vidsrc.sbs/embed/tv/${tmdbId}/${season}/${episode}?autoplay=${autoPlay ? '1' : '0'}`,
-      working: true,
-    },
-    {
-      id: 'vidcore',
-      name: 'VidCore',
-      quality: '4K',
-      getUrl: () => mediaType === 'movie'
-        ? `https://www.vidcore.org/embed/movie/${tmdbId}`
-        : `https://www.vidcore.org/embed/tv/${tmdbId}/${season}/${episode}`,
-      working: true,
-    },
-    {
-      id: '2embed',
-      name: '2Embed',
-      quality: '1080p',
-      getUrl: () => mediaType === 'movie'
-        ? `https://www.2embed.online/embed/movie/${tmdbId}`
-        : `https://www.2embed.online/embed/tv/${tmdbId}/${season}/${episode}`,
-      working: true,
-    },
-    {
-      id: 'superembed',
-      name: 'SuperEmbed',
-      quality: '1080p',
-      getUrl: () => mediaType === 'movie'
-        ? `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1`
-        : `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`,
-      working: true,
-    },
-    {
-      id: 'vidbolt',
-      name: 'VidBolt',
-      quality: '1080p',
-      getUrl: () => mediaType === 'movie'
-        ? `https://vidbolt.xyz/embed/movie/${tmdbId}`
-        : `https://vidbolt.xyz/embed/tv/${tmdbId}/${season}/${episode}`,
-      working: true,
-    },
-    {
-      id: 'embedsu',
-      name: 'Embed.su',
-      quality: '1080p',
-      getUrl: () => mediaType === 'movie'
-        ? `https://embed.su/embed/movie/${tmdbId}`
-        : `https://embed.su/embed/tv/${tmdbId}/${season}/${episode}`,
-      working: true,
-    },
-  ];
+  // Shared source list is ordered with ad-free providers first.
+  const sources: StreamingSource[] = STREAMING_SOURCES.map((source) => ({
+    id: source.id,
+    name: source.name,
+    quality: source.quality,
+    working: source.working,
+    getUrl: () => source.getUrl(tmdbId, mediaType, season, episode),
+  }));
 
   const currentSource = sources.find(s => s.id === selectedSource) || sources[0];
   const embedUrl = currentSource.getUrl();
@@ -151,11 +103,6 @@ export default function CinemaPlayer({
     }
   };
 
-  const handleWatchParty = () => {
-    // Create watch party and redirect
-    router.push('/watch-parties');
-  };
-
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
@@ -200,18 +147,6 @@ export default function CinemaPlayer({
 
           {/* Right Controls */}
           <div className="flex items-center gap-3">
-            {/* Watch Party Button - Dulo.gd style */}
-            <button
-              onClick={handleWatchParty}
-              className="flex items-center gap-2 px-4 py-2 bg-[#e50914] hover:bg-[#f40612] text-white rounded-lg font-semibold transition-all hover:scale-105"
-              title="Start Watch Party"
-            >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z" />
-              </svg>
-              Watch Party
-            </button>
-
             {/* Theater Mode */}
             <button
               onClick={handleTheaterMode}

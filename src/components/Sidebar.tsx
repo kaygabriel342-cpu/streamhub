@@ -132,21 +132,21 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         <div className="p-4 mt-4 border-t border-[#222]">
           <h3 className="text-[#666] text-xs font-semibold uppercase tracking-wider mb-3 px-4">Live Channels</h3>
           <div className="space-y-2">
-            <Link href="/live/espn" className="flex items-center gap-3 px-4 py-2 text-[#b3b3b3] hover:text-white hover:bg-[#1a1a1a] rounded-lg transition-colors">
-              <div className="w-8 h-8 bg-[#e50914] rounded flex items-center justify-center text-white font-bold text-xs">ESPN</div>
-              <span className="text-sm font-medium">ESPN</span>
-            </Link>
-            <Link href="/live/nickelodeon" className="flex items-center gap-3 px-4 py-2 text-[#b3b3b3] hover:text-white hover:bg-[#1a1a1a] rounded-lg transition-colors">
-              <div className="w-8 h-8 bg-orange-500 rounded flex items-center justify-center text-white font-bold text-xs">尼克</div>
-              <span className="text-sm font-medium">Nickelodeon</span>
-            </Link>
-            <Link href="/live/nickjr" className="flex items-center gap-3 px-4 py-2 text-[#b3b3b3] hover:text-white hover:bg-[#1a1a1a] rounded-lg transition-colors">
-              <div className="w-8 h-8 bg-red-400 rounded flex items-center justify-center text-white font-bold text-xs">JR</div>
-              <span className="text-sm font-medium">Nick Jr.</span>
-            </Link>
-            <Link href="/live/sports" className="flex items-center gap-3 px-4 py-2 text-[#b3b3b3] hover:text-white hover:bg-[#1a1a1a] rounded-lg transition-colors">
-              <div className="w-8 h-8 bg-green-600 rounded flex items-center justify-center text-white font-bold text-xs">SPORT</div>
+            <Link href="/live" className="flex items-center gap-3 px-4 py-2 text-[#b3b3b3] hover:text-white hover:bg-[#1a1a1a] rounded-lg transition-colors">
+              <div className="w-8 h-8 bg-[#e50914] rounded flex items-center justify-center text-white font-bold text-xs">RBTV</div>
               <span className="text-sm font-medium">Live Sports</span>
+            </Link>
+            <Link href="/live" className="flex items-center gap-3 px-4 py-2 text-[#b3b3b3] hover:text-white hover:bg-[#1a1a1a] rounded-lg transition-colors">
+              <div className="w-8 h-8 bg-orange-500 rounded flex items-center justify-center text-white font-bold text-xs">KIDS</div>
+              <span className="text-sm font-medium">Kids Channels</span>
+            </Link>
+            <Link href="/live" className="flex items-center gap-3 px-4 py-2 text-[#b3b3b3] hover:text-white hover:bg-[#1a1a1a] rounded-lg transition-colors">
+              <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-white font-bold text-xs">NEWS</div>
+              <span className="text-sm font-medium">News</span>
+            </Link>
+            <Link href="/live" className="flex items-center gap-3 px-4 py-2 text-[#b3b3b3] hover:text-white hover:bg-[#1a1a1a] rounded-lg transition-colors">
+              <div className="w-8 h-8 bg-purple-600 rounded flex items-center justify-center text-white font-bold text-xs">MOV</div>
+              <span className="text-sm font-medium">Movies Live</span>
             </Link>
           </div>
         </div>

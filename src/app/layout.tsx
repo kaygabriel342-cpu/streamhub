@@ -5,8 +5,8 @@ import PWAProvider from "@/components/PWAProvider";
 
 export const metadata: Metadata = {
   title: "StreamHub - Watch Movies & TV Shows Online",
-  description: "Stream your favorite movies and TV shows from multiple providers. Join watch parties and enjoy synchronized viewing with friends.",
-  keywords: "streaming, movies, TV shows, watch party, online streaming",
+  description: "Stream movies, TV shows, anime, and live channels from multiple providers in a PWA experience.",
+  keywords: "streaming, movies, TV shows, anime, live TV, online streaming",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,

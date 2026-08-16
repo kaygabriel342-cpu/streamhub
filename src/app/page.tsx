@@ -149,11 +149,6 @@ export default function Home() {
               viewAllHref="/tv/top-rated"
             />
 
-            <ContentRow
-              title="Watch Parties"
-              items={trending.slice(6, 14)}
-              viewAllHref="/watch-parties"
-            />
           </div>
         </main>
 

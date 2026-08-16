@@ -2,109 +2,56 @@ import Link from 'next/link';
 
 export default function Footer() {
   return (
-    <footer className="bg-[#0a0a0a] border-t border-[#222] py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+    <footer className="border-t border-[#222] bg-[#0a0a0a] py-12">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-8 grid grid-cols-2 gap-8 md:grid-cols-4">
           <div>
-            <h3 className="text-white font-semibold mb-4">Navigation</h3>
+            <h3 className="mb-4 font-semibold text-white">Navigation</h3>
             <ul className="space-y-2">
-              <li>
-                <Link href="/" className="text-[#666] hover:text-white transition-colors">
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link href="/movies" className="text-[#666] hover:text-white transition-colors">
-                  Movies
-                </Link>
-              </li>
-              <li>
-                <Link href="/tv" className="text-[#666] hover:text-white transition-colors">
-                  TV Shows
-                </Link>
-              </li>
-              <li>
-                <Link href="/watch-parties" className="text-[#666] hover:text-white transition-colors">
-                  Watch Parties
-                </Link>
-              </li>
+              <li><Link href="/" className="text-[#666] transition-colors hover:text-white">Home</Link></li>
+              <li><Link href="/movies" className="text-[#666] transition-colors hover:text-white">Movies</Link></li>
+              <li><Link href="/tv" className="text-[#666] transition-colors hover:text-white">TV Shows</Link></li>
+              <li><Link href="/anime" className="text-[#666] transition-colors hover:text-white">Anime</Link></li>
+              <li><Link href="/live" className="text-[#666] transition-colors hover:text-white">Live TV</Link></li>
             </ul>
           </div>
-          
+
           <div>
-            <h3 className="text-white font-semibold mb-4">Categories</h3>
+            <h3 className="mb-4 font-semibold text-white">Categories</h3>
             <ul className="space-y-2">
-              <li>
-                <Link href="/movies/trending" className="text-[#666] hover:text-white transition-colors">
-                  Trending Movies
-                </Link>
-              </li>
-              <li>
-                <Link href="/tv/trending" className="text-[#666] hover:text-white transition-colors">
-                  Trending TV
-                </Link>
-              </li>
-              <li>
-                <Link href="/movies/top-rated" className="text-[#666] hover:text-white transition-colors">
-                  Top Rated
-                </Link>
-              </li>
-              <li>
-                <Link href="/tv/top-rated" className="text-[#666] hover:text-white transition-colors">
-                  Top Rated TV
-                </Link>
-              </li>
+              <li><Link href="/trending" className="text-[#666] transition-colors hover:text-white">Trending</Link></li>
+              <li><Link href="/movies" className="text-[#666] transition-colors hover:text-white">Popular Movies</Link></li>
+              <li><Link href="/tv" className="text-[#666] transition-colors hover:text-white">Popular TV</Link></li>
+              <li><Link href="/anime" className="text-[#666] transition-colors hover:text-white">Anime</Link></li>
             </ul>
           </div>
-          
+
           <div>
-            <h3 className="text-white font-semibold mb-4">Features</h3>
+            <h3 className="mb-4 font-semibold text-white">Features</h3>
             <ul className="space-y-2">
-              <li>
-                <Link href="/watch-parties" className="text-[#666] hover:text-white transition-colors">
-                  Watch Parties
-                </Link>
-              </li>
-              <li>
-                <span className="text-[#666]">Multi-Provider Support</span>
-              </li>
-              <li>
-                <span className="text-[#666]">Real-time Sync</span>
-              </li>
-              <li>
-                <span className="text-[#666]">HD Streaming</span>
-              </li>
+              <li><span className="text-[#666]">Multi-Provider Streaming</span></li>
+              <li><span className="text-[#666]">HLS Live TV Player</span></li>
+              <li><span className="text-[#666]">Anime Integrations</span></li>
+              <li><span className="text-[#666]">PWA Install</span></li>
             </ul>
           </div>
-          
+
           <div>
-            <h3 className="text-white font-semibold mb-4">Legal</h3>
+            <h3 className="mb-4 font-semibold text-white">Admin</h3>
             <ul className="space-y-2">
-              <li>
-                <span className="text-[#666]">Terms of Service</span>
-              </li>
-              <li>
-                <span className="text-[#666]">Privacy Policy</span>
-              </li>
-              <li>
-                <span className="text-[#666]">DMCA</span>
-              </li>
-              <li>
-                <span className="text-[#666]">Contact</span>
-              </li>
+              <li><Link href="/crm" className="text-[#666] transition-colors hover:text-white">CRM Dashboard</Link></li>
+              <li><span className="text-[#666]">Analytics</span></li>
+              <li><span className="text-[#666]">Profiles</span></li>
+              <li><span className="text-[#666]">Content Tools</span></li>
             </ul>
           </div>
         </div>
-        
+
         <div className="border-t border-[#222] pt-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="text-2xl font-bold text-[#e50914]">StreamHub</div>
-            <p className="text-[#666] text-sm">
-              © {new Date().getFullYear()} StreamHub. All rights reserved.
-            </p>
-            <p className="text-[#666] text-sm">
-              Powered by TMDB API
-            </p>
+          <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
+            <div className="text-2xl font-bold text-[#e50914]">Marqueeflix</div>
+            <p className="text-sm text-[#666]">© {new Date().getFullYear()} Marqueeflix. All rights reserved.</p>
+            <p className="text-sm text-[#666]">Powered by TMDB, AniList, Jikan and HLS streams</p>
           </div>
         </div>
       </div>
