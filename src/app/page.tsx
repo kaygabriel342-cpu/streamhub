@@ -6,10 +6,12 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Hero from '@/components/Hero';
 import ContentRow from '@/components/ContentRow';
+import StartupAnimation from '@/components/StartupAnimation';
 import { TMDBMedia } from '@/lib/tmdb/types';
 
 export default function Home() {
   const router = useRouter();
+  const [showAnimation, setShowAnimation] = useState(true);
   const [trending, setTrending] = useState<TMDBMedia[]>([]);
   const [trendingMovies, setTrendingMovies] = useState<TMDBMedia[]>([]);
   const [trendingTV, setTrendingTV] = useState<TMDBMedia[]>([]);
@@ -22,6 +24,12 @@ export default function Home() {
   const [heroMedia, setHeroMedia] = useState<TMDBMedia | null>(null);
 
   useEffect(() => {
+    // Check if user has seen animation before
+    const seen = localStorage.getItem('seenAnimation');
+    if (seen) {
+      setShowAnimation(false);
+    }
+
     async function fetchData() {
       try {
         const [
@@ -78,11 +86,16 @@ export default function Home() {
     router.push(`/search?q=${encodeURIComponent(query)}`);
   };
 
-  if (loading) {
+  const handleAnimationComplete = () => {
+    setShowAnimation(false);
+    localStorage.setItem('seenAnimation', 'true');
+  };
+
+  if (loading && !showAnimation) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
         <div className="text-center">
-          <div className="text-4xl font-bold text-[#e50914] mb-4 animate-pulse">MARQUEEFLIX</div>
+          <div className="text-4xl font-black text-[#e50914] mb-4 animate-pulse">MARQUEEFLIX</div>
           <div className="text-[#666]">Loading your entertainment...</div>
         </div>
       </div>
@@ -90,58 +103,62 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
-      <Header onSearch={handleSearch} />
+    <>
+      {showAnimation && <StartupAnimation onComplete={handleAnimationComplete} />}
       
-      <main>
-        {heroMedia && <Hero media={heroMedia} />}
+      <div className={`min-h-screen bg-[#0a0a0a] transition-opacity duration-1000 ${showAnimation ? 'opacity-0' : 'opacity-100'}`}>
+        <Header onSearch={handleSearch} />
+        
+        <main>
+          {heroMedia && <Hero media={heroMedia} />}
 
-        <div className="-mt-32 relative z-10 space-y-8">
-          <ContentRow
-            title="Trending Now"
-            items={trending.slice(0, 14)}
-            viewAllHref="/trending"
-          />
-          
-          <ContentRow
-            title="New Releases"
-            items={newReleases}
-            viewAllHref="/movies/new"
-          />
-          
-          <ContentRow
-            title="Popular Movies"
-            items={popularMovies.slice(0, 14)}
-            viewAllHref="/movies/popular"
-          />
-          
-          <ContentRow
-            title="Popular TV Shows"
-            items={popularTV.slice(0, 14)}
-            viewAllHref="/tv/popular"
-          />
-          
-          <ContentRow
-            title="Top Rated Movies"
-            items={topRatedMovies.slice(0, 14)}
-            viewAllHref="/movies/top-rated"
-          />
-          
-          <ContentRow
-            title="Top Rated TV Shows"
-            items={topRatedTV.slice(0, 14)}
-            viewAllHref="/tv/top-rated"
-          />
+          <div className="-mt-32 relative z-10 space-y-8">
+            <ContentRow
+              title="Trending Now"
+              items={trending.slice(0, 14)}
+              viewAllHref="/trending"
+            />
+            
+            <ContentRow
+              title="New Releases"
+              items={newReleases}
+              viewAllHref="/movies/new"
+            />
+            
+            <ContentRow
+              title="Popular Movies"
+              items={popularMovies.slice(0, 14)}
+              viewAllHref="/movies/popular"
+            />
+            
+            <ContentRow
+              title="Popular TV Shows"
+              items={popularTV.slice(0, 14)}
+              viewAllHref="/tv/popular"
+            />
+            
+            <ContentRow
+              title="Top Rated Movies"
+              items={topRatedMovies.slice(0, 14)}
+              viewAllHref="/movies/top-rated"
+            />
+            
+            <ContentRow
+              title="Top Rated TV Shows"
+              items={topRatedTV.slice(0, 14)}
+              viewAllHref="/tv/top-rated"
+            />
 
-          <ContentRow
-            title="Watch Parties"
-            items={trending.slice(6, 14)}
-            viewAllHref="/watch-parties"
-          />
-        </div>
-      </main>
+            <ContentRow
+              title="Watch Parties"
+              items={trending.slice(6, 14)}
+              viewAllHref="/watch-parties"
+            />
+          </div>
+        </main>
 
-      <Footer />
-    </div>
+        <Footer />
+      </div>
+    </>
   );
 }

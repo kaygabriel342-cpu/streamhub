@@ -117,8 +117,8 @@ export default function Header({ onSearch }: { onSearch?: (query: string) => voi
                   <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
                   Live TV
                 </Link>
-                <Link href="/mylist" className="text-[#b3b3b3] hover:text-white font-medium transition-colors text-sm">
-                  My List
+                <Link href="/crm" className="text-[#b3b3b3] hover:text-white font-medium transition-colors text-sm">
+                  CRM
                 </Link>
               </nav>
             </div>
