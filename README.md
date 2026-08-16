@@ -22,12 +22,13 @@
 
 ## 🚀 Quick Start
 
-### Install as PWA (Recommended)
+### Deploy to Netlify (Recommended)
 
-1. Visit the site in Chrome/Edge
-2. Click the install icon (⊕) in address bar
-3. Click "Install"
-4. App appears in Start Menu!
+1. Go to [Netlify](https://netlify.com)
+2. Click "New site from Git"
+3. Connect GitHub and select this repo
+4. Add environment variables (see below)
+5. Deploy!
 
 ### Run Locally
 
@@ -95,12 +96,22 @@ docker-compose up -d
 
 ## 🔐 Environment Variables
 
+### For Netlify Deployment
+
+Add these in Netlify Dashboard → Site Settings → Environment Variables:
+
+```
+TMDB_API_KEY=8cf03ecf0cacc0582ea33c57b5efd815
+TMDB_ACCESS_TOKEN=eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI4Y2YwM2VjZjBjYWNjMDU4MmVhMzNjNTdiNWVmZDgxNSIsIm5iZiI6MTc4NjE3MzI5OC45NzEsInN1YiI6IjZhNzZkNzcyN2Q4ZjE5NDVjOTRkNjQ4OCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.1d6kNfrQOFoQkf5qFbOKOdHvfzwSL-DScbGz8ZQ3yVY
+```
+
+### For Local Development
+
 Create a `.env` file:
 
 ```env
-DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/app_db
-TMDB_API_KEY=your_tmdb_api_key
-TMDB_ACCESS_TOKEN=your_tmdb_access_token
+TMDB_API_KEY=8cf03ecf0cacc0582ea33c57b5efd815
+TMDB_ACCESS_TOKEN=eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI4Y2YwM2VjZjBjYWNjMDU4MmVhMzNjNTdiNWVmZDgxNSIsIm5iZiI6MTc4NjE3MzI5OC45NzEsInN1YiI6IjZhNzZkNzcyN2Q4ZjE5NDVjOTRkNjQ4OCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.1d6kNfrQOFoQkf5qFbOKOdHvfzwSL-DScbGz8ZQ3yVY
 ```
 
 ## 📄 License
