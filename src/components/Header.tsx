@@ -186,8 +186,17 @@ export default function Header({ onSearch }: { onSearch?: (query: string) => voi
                 </div>
               </form>
 
+              {!isSignedIn && (
+                <Link
+                  href="/login"
+                  className="rounded-full bg-white px-5 py-2 text-sm font-bold text-black transition-colors hover:bg-[#e6e6e6]"
+                >
+                  Sign in
+                </Link>
+              )}
+
               {/* Profile Menu */}
-              <div className="relative">
+              <div className={`relative ${!isSignedIn ? 'hidden' : ''}`}>
                 <button
                   onClick={() => setShowProfileMenu(!showProfileMenu)}
                   className="flex items-center gap-2 group"

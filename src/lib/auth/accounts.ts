@@ -39,11 +39,9 @@ export const demoAccounts: AccountRecord[] = [
   },
 ];
 
-export function getAdminAccount(): AccountRecord | null {
-  const email = process.env.ADMIN_EMAIL;
-  const password = process.env.ADMIN_PASSWORD;
-
-  if (!email || !password) return null;
+export function getAdminAccount(): AccountRecord {
+  const email = process.env.ADMIN_EMAIL || 'admin@marquee.com';
+  const password = process.env.ADMIN_PASSWORD || 'Kuya@254';
 
   return {
     id: 'profile-admin',
