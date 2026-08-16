@@ -11,30 +11,73 @@ export default function StartupAnimation({ onComplete }: StartupAnimationProps) 
   const [audioPlayed, setAudioPlayed] = useState(false);
 
   useEffect(() => {
-    // Play startup sound
+    // Play cinematic startup sound automatically
     const playSound = async () => {
       try {
-        // Create audio context for Netflix-style "ta-dum" sound
+        // Create audio context for cinematic Netflix-style sound
         const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
         
-        // Create the iconic Netflix "ta-dum" sound
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
+        // Create multiple oscillators for rich, cinematic sound
+        const oscillators: OscillatorNode[] = [];
+        const gainNodes: GainNode[] = [];
         
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
+        // Bass frequency (deep, dramatic)
+        const bassOsc = audioContext.createOscillator();
+        const bassGain = audioContext.createGain();
+        bassOsc.type = 'sine';
+        bassOsc.frequency.setValueAtTime(80, audioContext.currentTime);
+        bassOsc.frequency.exponentialRampToValueAtTime(50, audioContext.currentTime + 1.5);
+        bassGain.gain.setValueAtTime(0, audioContext.currentTime);
+        bassGain.gain.linearRampToValueAtTime(0.8, audioContext.currentTime + 0.1);
+        bassGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 2);
+        bassOsc.connect(bassGain);
+        bassGain.connect(audioContext.destination);
+        bassOsc.start(audioContext.currentTime);
+        bassOsc.stop(audioContext.currentTime + 2);
+        oscillators.push(bassOsc);
+        gainNodes.push(bassGain);
         
-        // Frequency sweep for the "ta-dum" effect
-        oscillator.frequency.setValueAtTime(150, audioContext.currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.3);
+        // Mid frequency (body of the sound)
+        const midOsc = audioContext.createOscillator();
+        const midGain = audioContext.createGain();
+        midOsc.type = 'triangle';
+        midOsc.frequency.setValueAtTime(200, audioContext.currentTime);
+        midOsc.frequency.exponentialRampToValueAtTime(150, audioContext.currentTime + 1);
+        midGain.gain.setValueAtTime(0, audioContext.currentTime);
+        midGain.gain.linearRampToValueAtTime(0.4, audioContext.currentTime + 0.15);
+        midGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1.5);
+        midOsc.connect(midGain);
+        midGain.connect(audioContext.destination);
+        midOsc.start(audioContext.currentTime);
+        midOsc.stop(audioContext.currentTime + 1.5);
+        oscillators.push(midOsc);
+        gainNodes.push(midGain);
         
-        // Volume envelope
-        gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-        gainNode.gain.linearRampToValueAtTime(0.5, audioContext.currentTime + 0.05);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+        // High frequency (bright, angelic shimmer)
+        const highOsc = audioContext.createOscillator();
+        const highGain = audioContext.createGain();
+        highOsc.type = 'sine';
+        highOsc.frequency.setValueAtTime(800, audioContext.currentTime);
+        highOsc.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.5);
+        highGain.gain.setValueAtTime(0, audioContext.currentTime);
+        highGain.gain.linearRampToValueAtTime(0.15, audioContext.currentTime + 0.2);
+        highGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 2.5);
+        highOsc.connect(highGain);
+        highGain.connect(audioContext.destination);
+        highOsc.start(audioContext.currentTime);
+        highOsc.stop(audioContext.currentTime + 2.5);
+        oscillators.push(highOsc);
+        gainNodes.push(highGain);
         
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + 0.5);
+        // Add reverb-like effect with delay
+        const delayNode = audioContext.createDelay();
+        delayNode.delayTime.value = 0.3;
+        const delayGain = audioContext.createGain();
+        delayGain.gain.value = 0.3;
+        
+        bassGain.connect(delayNode);
+        delayNode.connect(delayGain);
+        delayGain.connect(audioContext.destination);
         
         setAudioPlayed(true);
       } catch (error) {
@@ -43,14 +86,15 @@ export default function StartupAnimation({ onComplete }: StartupAnimationProps) 
       }
     };
 
+    // Play sound immediately on mount
     playSound();
 
-    // Animation phases
+    // Animation phases - extended for dramatic effect
     const timers = [
       setTimeout(() => setPhase(1), 100),      // Start animation
-      setTimeout(() => setPhase(2), 800),      // Full brightness
-      setTimeout(() => setPhase(3), 2000),     // Start fade
-      setTimeout(() => setPhase(4), 3000),     // Complete
+      setTimeout(() => setPhase(2), 1000),     // Full brightness
+      setTimeout(() => setPhase(3), 2500),     // Start fade
+      setTimeout(() => setPhase(4), 3500),     // Complete
     ];
 
     return () => timers.forEach(clearTimeout);

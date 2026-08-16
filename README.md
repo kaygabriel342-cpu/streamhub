@@ -30,6 +30,24 @@
 4. Add environment variables (see below)
 5. Deploy!
 
+### ⚡ Automatic Updates on Netlify
+
+**Yes! Updates appear automatically on https://marqueeflix.netlify.app/**
+
+When you push to GitHub:
+1. Netlify detects the push automatically
+2. Triggers a new build
+3. Deploys the updated site
+4. Your live site updates in 2-5 minutes
+
+**No manual action needed!** Just push to GitHub and Netlify handles the rest.
+
+To check build status:
+- Go to your Netlify dashboard
+- Click on your site
+- View "Deploys" tab
+- See build progress and logs
+
 ### Run Locally
 
 ```bash

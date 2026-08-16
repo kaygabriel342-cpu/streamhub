@@ -14,22 +14,13 @@ export interface StreamingSource {
 }
 
 // Multiple streaming sources for movies and TV
+// ORDERED BY PRIORITY: Ad-free APIs first, then ad-supported
 export const STREAMING_SOURCES: StreamingSource[] = [
-  // VidSrc
-  {
-    id: 'vidsrc',
-    name: 'VidSrc Pro',
-    getUrl: (tmdbId, type, season, episode) =>
-      type === 'movie'
-        ? `https://vidsrc.sbs/embed/movie/${tmdbId}?autoplay=1`
-        : `https://vidsrc.sbs/embed/tv/${tmdbId}/${season}/${episode}?autoplay=1`,
-    quality: '4K',
-    working: true,
-  },
-  // VidCore
+  // === AD-FREE APIs (Priority 1) ===
+  // VidCore - Completely ad-free, 4K
   {
     id: 'vidcore',
-    name: 'VidCore',
+    name: 'VidCore (Ad-Free)',
     getUrl: (tmdbId, type, season, episode) =>
       type === 'movie'
         ? `https://www.vidcore.org/embed/movie/${tmdbId}`
@@ -37,7 +28,60 @@ export const STREAMING_SOURCES: StreamingSource[] = [
     quality: '4K',
     working: true,
   },
-  // 2Embed
+  // VidSrc - No ads, HD quality
+  {
+    id: 'vidsrc',
+    name: 'VidSrc (No Ads)',
+    getUrl: (tmdbId, type, season, episode) =>
+      type === 'movie'
+        ? `https://vidsrc.sbs/embed/movie/${tmdbId}?autoplay=1`
+        : `https://vidsrc.sbs/embed/tv/${tmdbId}/${season}/${episode}?autoplay=1`,
+    quality: '4K',
+    working: true,
+  },
+  // VidLink - Minimal ads, 4K
+  {
+    id: 'vidlink',
+    name: 'VidLink (4K)',
+    getUrl: (tmdbId, type, season, episode) =>
+      type === 'movie'
+        ? `https://vidlink.pro/movie/${tmdbId}`
+        : `https://vidlink.pro/tv/${tmdbId}/${season}/${episode}`,
+    quality: '4K',
+    working: true,
+  },
+  // Zenith Movies - Ad-free
+  {
+    id: 'zenith',
+    name: 'Zenith Movies (Ad-Free)',
+    getUrl: (tmdbId, type, season, episode) =>
+      type === 'movie'
+        ? `https://api.zenithmovies.xyz/embed/movie/${tmdbId}`
+        : `https://api.zenithmovies.xyz/embed/tv/${tmdbId}/${season}/${episode}`,
+    quality: '1080p',
+    working: true,
+  },
+  // AniMovie - Anime, minimal ads
+  {
+    id: 'animovie',
+    name: 'AniMovie',
+    getUrl: (tmdbId, type) =>
+      `https://animovie.vercel.app/embed/movie/${tmdbId}`,
+    quality: '1080p',
+    working: true,
+  },
+  // AniWatch - Anime streaming
+  {
+    id: 'aniwatch',
+    name: 'AniWatch',
+    getUrl: (tmdbId, type) =>
+      `https://aniwatch.to/watch/${tmdbId}`,
+    quality: '1080p',
+    working: true,
+  },
+  
+  // === AD-SUPPORTED APIs (Priority 2 - Backup) ===
+  // 2Embed - Some ads but reliable
   {
     id: '2embed',
     name: '2Embed',
@@ -48,29 +92,7 @@ export const STREAMING_SOURCES: StreamingSource[] = [
     quality: '1080p',
     working: true,
   },
-  // SuperEmbed
-  {
-    id: 'superembed',
-    name: 'SuperEmbed',
-    getUrl: (tmdbId, type, season, episode) =>
-      type === 'movie'
-        ? `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1`
-        : `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`,
-    quality: '1080p',
-    working: true,
-  },
-  // VidBolt
-  {
-    id: 'vidbolt',
-    name: 'VidBolt',
-    getUrl: (tmdbId, type, season, episode) =>
-      type === 'movie'
-        ? `https://vidbolt.xyz/embed/movie/${tmdbId}`
-        : `https://vidbolt.xyz/embed/tv/${tmdbId}/${season}/${episode}`,
-    quality: '1080p',
-    working: true,
-  },
-  // Embed.su
+  // Embed.su - Minimal ads
   {
     id: 'embedsu',
     name: 'Embed.su',
@@ -81,52 +103,34 @@ export const STREAMING_SOURCES: StreamingSource[] = [
     quality: '1080p',
     working: true,
   },
-  // AniMovie (for anime movies)
+  // SuperEmbed - 1 popup ad
   {
-    id: 'animovie',
-    name: 'AniMovie',
-    getUrl: (tmdbId, type) =>
-      `https://animovie.vercel.app/embed/movie/${tmdbId}`,
+    id: 'superembed',
+    name: 'SuperEmbed',
+    getUrl: (tmdbId, type, season, episode) =>
+      type === 'movie'
+        ? `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1`
+        : `https://multiembed.mov/?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`,
     quality: '1080p',
     working: true,
   },
-  // VidLink
+  // VidBolt - Some ads
   {
-    id: 'vidlink',
-    name: 'VidLink',
+    id: 'vidbolt',
+    name: 'VidBolt',
     getUrl: (tmdbId, type, season, episode) =>
       type === 'movie'
-        ? `https://vidlink.pro/movie/${tmdbId}`
-        : `https://vidlink.pro/tv/${tmdbId}/${season}/${episode}`,
-    quality: '4K',
-    working: true,
-  },
-  // Zenith Movies
-  {
-    id: 'zenith',
-    name: 'Zenith Movies',
-    getUrl: (tmdbId, type, season, episode) =>
-      type === 'movie'
-        ? `https://api.zenithmovies.xyz/embed/movie/${tmdbId}`
-        : `https://api.zenithmovies.xyz/embed/tv/${tmdbId}/${season}/${episode}`,
+        ? `https://vidbolt.xyz/embed/movie/${tmdbId}`
+        : `https://vidbolt.xyz/embed/tv/${tmdbId}/${season}/${episode}`,
     quality: '1080p',
     working: true,
   },
-  // Watchmode
+  // Watchmode - Source finder
   {
     id: 'watchmode',
     name: 'Watchmode',
     getUrl: (tmdbId, type) =>
       `https://api.watchmode.com/v1/title/${tmdbId}/sources/`,
-    quality: '1080p',
-    working: true,
-  },
-  // AniWatch (for anime)
-  {
-    id: 'aniwatch',
-    name: 'AniWatch',
-    getUrl: (tmdbId, type) =>
-      `https://aniwatch.to/watch/${tmdbId}`,
     quality: '1080p',
     working: true,
   },
