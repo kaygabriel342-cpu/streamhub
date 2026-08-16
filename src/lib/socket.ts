@@ -56,7 +56,7 @@ export function initSocketIO(httpServer: HTTPServer) {
         // Add member to database
         await db.insert(watchPartyMembers).values({
           partyId,
-          userId,
+          profileId: userId,
         }).onConflictDoNothing();
         
         // Send current state to the new member

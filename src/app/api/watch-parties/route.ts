@@ -44,7 +44,7 @@ export async function POST(request: Request) {
     
     const [party] = await db.insert(watchParties).values({
       name,
-      hostId,
+      hostProfileId: hostId,
       tmdbId,
       mediaType,
       currentTime: 0,
@@ -54,7 +54,7 @@ export async function POST(request: Request) {
     // Add host as first member
     await db.insert(watchPartyMembers).values({
       partyId: party.id,
-      userId: hostId,
+      profileId: hostId,
     });
     
     return NextResponse.json(party, { status: 201 });

@@ -17,6 +17,7 @@ export default function Home() {
   const [popularTV, setPopularTV] = useState<TMDBMedia[]>([]);
   const [topRatedMovies, setTopRatedMovies] = useState<TMDBMedia[]>([]);
   const [topRatedTV, setTopRatedTV] = useState<TMDBMedia[]>([]);
+  const [newReleases, setNewReleases] = useState<TMDBMedia[]>([]);
   const [loading, setLoading] = useState(true);
   const [heroMedia, setHeroMedia] = useState<TMDBMedia | null>(null);
 
@@ -56,8 +57,8 @@ export default function Home() {
         setPopularTV(popularTVData.results || []);
         setTopRatedMovies(topRatedMoviesData.results || []);
         setTopRatedTV(topRatedTVData.results || []);
+        setNewReleases(popularMoviesData.results?.slice(0, 12) || []);
 
-        // Set hero media from trending
         if (trendingData.results && trendingData.results.length > 0) {
           const hero = trendingData.results.find((m: TMDBMedia) => m.backdrop_path) || trendingData.results[0];
           setHeroMedia(hero);
@@ -79,53 +80,63 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#141414] flex items-center justify-center">
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
         <div className="text-center">
-          <div className="text-3xl font-bold text-[#e50914] mb-4">StreamHub</div>
-          <div className="animate-pulse text-[#666]">Loading...</div>
+          <div className="text-4xl font-bold text-[#e50914] mb-4 animate-pulse">MARQUEEFLIX</div>
+          <div className="text-[#666]">Loading your entertainment...</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#141414]">
+    <div className="min-h-screen bg-[#0a0a0a]">
       <Header onSearch={handleSearch} />
       
       <main>
-        {/* Hero Section */}
         {heroMedia && <Hero media={heroMedia} />}
 
-        {/* Content Rows */}
-        <div className="-mt-20 relative z-10">
+        <div className="-mt-32 relative z-10 space-y-8">
           <ContentRow
-            title="Trending Now"
-            items={trending.slice(0, 12)}
+            title="🔥 Trending Now"
+            items={trending.slice(0, 14)}
             viewAllHref="/trending"
           />
           
           <ContentRow
-            title="Popular Movies"
-            items={popularMovies.slice(0, 12)}
+            title="🆕 Newly Released"
+            items={newReleases}
+            viewAllHref="/movies/new"
+          />
+          
+          <ContentRow
+            title="🎬 Popular Movies"
+            items={popularMovies.slice(0, 14)}
             viewAllHref="/movies/popular"
           />
           
           <ContentRow
-            title="Popular TV Shows"
-            items={popularTV.slice(0, 12)}
+            title="📺 Popular TV Shows"
+            items={popularTV.slice(0, 14)}
             viewAllHref="/tv/popular"
           />
           
           <ContentRow
-            title="Top Rated Movies"
-            items={topRatedMovies.slice(0, 12)}
+            title="⭐ Top Rated Movies"
+            items={topRatedMovies.slice(0, 14)}
             viewAllHref="/movies/top-rated"
           />
           
           <ContentRow
-            title="Top Rated TV Shows"
-            items={topRatedTV.slice(0, 12)}
+            title="🏆 Top Rated TV Shows"
+            items={topRatedTV.slice(0, 14)}
             viewAllHref="/tv/top-rated"
+          />
+
+          <ContentRow
+            title="🎉 Watch Parties"
+            items={trending.slice(6, 14)}
+            viewAllHref="/watch-parties"
           />
         </div>
       </main>
