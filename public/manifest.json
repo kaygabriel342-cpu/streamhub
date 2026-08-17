@@ -1,11 +1,11 @@
 {
-  "name": "StreamHub - Watch Movies & TV Shows Online",
-  "short_name": "StreamHub",
-  "description": "Stream your favorite movies and TV shows with watch parties. Multiple sources, no ads, theater mode.",
+  "name": "Marquee - Movies and TV",
+  "short_name": "Marquee",
+  "description": "A fast movie, TV, and anime streaming discovery PWA powered by TMDB metadata and VidKing playback.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#141414",
+  "background_color": "#050507",
   "theme_color": "#e50914",
   "orientation": "any",
   "icons": [
@@ -39,34 +39,14 @@
       "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     },
     {
-      "name": "Watch Parties",
-      "short_name": "Parties",
-      "description": "Join watch parties",
-      "url": "/watch-parties",
+      "name": "Anime",
+      "short_name": "Anime",
+      "description": "Browse anime",
+      "url": "/anime",
       "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     }
   ],
-  "screenshots": [
-    {
-      "src": "/screenshot-wide.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide"
-    },
-    {
-      "src": "/screenshot-narrow.png",
-      "sizes": "750x1334",
-      "type": "image/png",
-      "form_factor": "narrow"
-    }
-  ],
-  "share_target": {
-    "action": "/search",
-    "method": "GET",
-    "params": {
-      "query": "q"
-    }
-  },
+  "screenshots": [],
   "related_applications": [],
   "prefer_related_applications": false
 }

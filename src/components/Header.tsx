@@ -1,286 +1,174 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Sidebar from './Sidebar';
 
-interface Profile {
+type Profile = {
   id: string;
   name: string;
   avatar: string;
   email?: string;
   role?: string;
-}
+};
+
+const defaultProfiles: Profile[] = [
+  { id: 'shinobi', name: 'Shinobi', avatar: 'https://api.dicebear.com/9.x/adventurer/svg?seed=Shinobi&backgroundColor=1b1b2f' },
+  { id: 'sakura', name: 'Sakura', avatar: 'https://api.dicebear.com/9.x/adventurer/svg?seed=Sakura&backgroundColor=32203d' },
+  { id: 'akira', name: 'Akira', avatar: 'https://api.dicebear.com/9.x/adventurer/svg?seed=Akira&backgroundColor=242424' },
+  { id: 'yuki', name: 'Yuki', avatar: 'https://api.dicebear.com/9.x/adventurer/svg?seed=Yuki&backgroundColor=10202f' },
+];
 
 export default function Header({ onSearch }: { onSearch?: (query: string) => void }) {
   const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showBrowse, setShowBrowse] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
   const [showProfiles, setShowProfiles] = useState(false);
-  const [showSidebar, setShowSidebar] = useState(false);
-  const [currentProfile, setCurrentProfile] = useState<Profile | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentProfile, setCurrentProfile] = useState<Profile>(defaultProfiles[0]);
   const [isSignedIn, setIsSignedIn] = useState(false);
 
-  // Anime character avatars for profiles
-  const [profiles] = useState<Profile[]>([
-    { 
-      id: '1', 
-      name: 'You', 
-      avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Felix&backgroundColor=b6e3f4' 
-    },
-    { 
-      id: '2', 
-      name: 'Kids', 
-      avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Lily&backgroundColor=c0aede' 
-    },
-    { 
-      id: '3', 
-      name: 'Guest', 
-      avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Max&backgroundColor=d1d4f9' 
-    },
-  ]);
-
   useEffect(() => {
-    async function loadSession() {
+    async function loadProfile() {
       try {
         const response = await fetch('/api/auth/me');
         const data = await response.json();
         if (data.user) {
           setCurrentProfile(data.user);
           setIsSignedIn(true);
-          setIsAdmin(Boolean(data.isAdmin));
-          localStorage.setItem('currentProfile', JSON.stringify(data.user));
           return;
         }
       } catch {
-        // Continue with local profile fallback.
+        // use fallback
       }
 
       const saved = localStorage.getItem('currentProfile');
-      if (saved) {
-        setCurrentProfile(JSON.parse(saved));
-      } else if (profiles.length > 0) {
-        setCurrentProfile(profiles[0]);
-        localStorage.setItem('currentProfile', JSON.stringify(profiles[0]));
-      }
-      setIsSignedIn(false);
-      setIsAdmin(false);
+      if (saved) setCurrentProfile(JSON.parse(saved));
     }
 
-    loadSession();
-  }, [profiles]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    loadProfile();
   }, []);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (onSearch && searchQuery.trim()) {
-      onSearch(searchQuery.trim());
-    }
+  const doSearch = (event: React.FormEvent) => {
+    event.preventDefault();
+    const query = searchQuery.trim();
+    if (!query) return;
+    setShowSearch(false);
+    if (onSearch) onSearch(query);
+    else router.push(`/search?q=${encodeURIComponent(query)}`);
   };
 
   const selectProfile = (profile: Profile) => {
     setCurrentProfile(profile);
     localStorage.setItem('currentProfile', JSON.stringify(profile));
     setShowProfiles(false);
-    setShowProfileMenu(false);
   };
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
-    localStorage.removeItem('currentProfile');
     setIsSignedIn(false);
-    setIsAdmin(false);
-    setCurrentProfile(profiles[0]);
-    setShowProfileMenu(false);
-    router.push('/');
+    selectProfile(defaultProfiles[0]);
     router.refresh();
   };
 
   return (
     <>
-      <Sidebar isOpen={showSidebar} onClose={() => setShowSidebar(false)} isAdmin={isAdmin} />
-      
-      <header
-        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ${
-          isScrolled ? 'bg-[#0a0a0a]/95 backdrop-blur-md shadow-2xl' : 'bg-gradient-to-b from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent'
-        }`}
-      >
-        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 md:h-20">
-            {/* Left: Menu + Logo */}
-            <div className="flex items-center gap-6">
-              {/* Hamburger Menu */}
+      <header className="fixed left-0 right-0 top-0 z-50 bg-gradient-to-b from-black/95 via-black/70 to-transparent px-4 py-5 sm:px-8">
+        <div className="mx-auto flex max-w-[1920px] items-center justify-between gap-4">
+          <Link href="/" className="flex items-center gap-3">
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#ff1b2d] to-[#9c000b] shadow-lg shadow-red-950/40">
+              <svg className="ml-1 h-6 w-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+            </span>
+            <span className="text-2xl font-black tracking-tight text-white">Marquee</span>
+          </Link>
+
+          <nav className="flex items-center gap-2 text-sm font-semibold text-white">
+            <Link href="/" className="hidden items-center gap-2 rounded-full px-3 py-2 hover:bg-white/10 md:flex">
+              Home
+            </Link>
+            <Link href="/docs" className="hidden items-center gap-2 rounded-full px-3 py-2 hover:bg-white/10 md:flex">
+              API
+            </Link>
+
+            <div className="relative">
               <button
-                onClick={() => setShowSidebar(true)}
-                className="p-2 text-white hover:bg-white/10 rounded-lg transition-colors"
+                onClick={() => setShowBrowse((value) => !value)}
+                className={`flex items-center gap-2 rounded-full px-4 py-2 transition-colors ${showBrowse ? 'bg-[#e50914]/20 text-[#ff3344]' : 'hover:bg-white/10'}`}
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
+                Browse
+                <svg className={`h-4 w-4 transition-transform ${showBrowse ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
               </button>
 
-              {/* Logo */}
-              <Link href="/" className="text-2xl md:text-3xl font-black text-[#e50914] tracking-tighter">
-                MARQUEEFLIX
-              </Link>
-
-              {/* Desktop Navigation */}
-              <nav className="hidden lg:flex items-center gap-6 ml-8">
-                <Link href="/" className="text-white hover:text-[#e50914] font-medium transition-colors text-sm">
-                  Home
-                </Link>
-                <Link href="/tv" className="text-[#b3b3b3] hover:text-white font-medium transition-colors text-sm">
-                  TV Shows
-                </Link>
-                <Link href="/movies" className="text-[#b3b3b3] hover:text-white font-medium transition-colors text-sm">
-                  Movies
-                </Link>
-                <Link href="/anime" className="text-[#b3b3b3] hover:text-white font-medium transition-colors text-sm">
-                  Anime
-                </Link>
-                <Link href="/live" className="text-[#b3b3b3] hover:text-white font-medium transition-colors text-sm flex items-center gap-2">
-                  <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                  Live TV
-                </Link>
-                <Link href="/providers" className="text-[#b3b3b3] hover:text-white font-medium transition-colors text-sm">
-                  Providers
-                </Link>
-                {isAdmin && (
-                  <Link href="/crm" className="text-[#b3b3b3] hover:text-white font-medium transition-colors text-sm">
-                    CRM
-                  </Link>
-                )}
-              </nav>
-            </div>
-
-            {/* Right: Search + Profile */}
-            <div className="flex items-center gap-4">
-              {/* Search Bar */}
-              <form onSubmit={handleSearch} className="hidden md:flex items-center">
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Titles, people, genres"
-                    className="w-64 lg:w-80 px-4 py-2 pl-10 bg-[#1a1a1a] border border-[#333] rounded-full text-white placeholder-[#666] focus:outline-none focus:border-[#e50914] focus:ring-2 focus:ring-[#e50914]/20 transition-all"
-                  />
-                  <svg
-                    className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#666]"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </div>
-              </form>
-
-              {!isSignedIn && (
-                <Link
-                  href="/login"
-                  className="rounded-full bg-white px-5 py-2 text-sm font-bold text-black transition-colors hover:bg-[#e6e6e6]"
-                >
-                  Sign in
-                </Link>
-              )}
-
-              {/* Profile Menu */}
-              <div className={`relative ${!isSignedIn ? 'hidden' : ''}`}>
-                <button
-                  onClick={() => setShowProfileMenu(!showProfileMenu)}
-                  className="flex items-center gap-2 group"
-                >
-                  <img
-                    src={currentProfile?.avatar || profiles[0].avatar}
-                    alt={currentProfile?.name || 'Profile'}
-                    className="w-8 h-8 rounded bg-[#1a1a1a]"
-                  />
-                  <svg className={`w-4 h-4 text-white transition-transform ${showProfileMenu ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-
-                {/* Profile Dropdown */}
-                {showProfileMenu && (
-                  <div className="absolute right-0 mt-2 w-64 bg-[#1a1a1a] rounded-lg shadow-2xl border border-[#333] overflow-hidden">
-                    <div className="p-3 border-b border-[#333]">
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-white font-semibold text-sm">Profiles</span>
-                        <button
-                          onClick={() => setShowProfiles(true)}
-                          className="text-[#e50914] hover:text-white text-xs font-medium transition-colors"
-                        >
-                          Manage Profiles
-                        </button>
-                      </div>
-                      <div className="space-y-2">
-                        {profiles.map((profile) => (
-                          <button
-                            key={profile.id}
-                            onClick={() => selectProfile(profile)}
-                            className={`w-full flex items-center gap-3 p-2 rounded-lg transition-colors ${
-                              currentProfile?.id === profile.id ? 'bg-[#e50914]/20' : 'hover:bg-[#2a2a2a]'
-                            }`}
-                          >
-                            <img
-                              src={profile.avatar}
-                              alt={profile.name}
-                              className="w-8 h-8 rounded bg-[#1a1a1a]"
-                            />
-                            <span className="text-white text-sm">{profile.name}</span>
-                            {currentProfile?.id === profile.id && (
-                              <svg className="w-4 h-4 text-[#e50914] ml-auto" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                              </svg>
-                            )}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="p-2">
-                      {isSignedIn ? (
-                        <button onClick={handleLogout} className="flex w-full items-center gap-3 p-2 rounded-lg hover:bg-[#2a2a2a] transition-colors text-left">
-                          <svg className="w-5 h-5 text-[#b3b3b3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1" />
-                          </svg>
-                          <span className="text-white text-sm">Sign out</span>
-                        </button>
-                      ) : (
-                        <Link href="/login" className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#2a2a2a] transition-colors">
-                          <svg className="w-5 h-5 text-[#b3b3b3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14" />
-                          </svg>
-                          <span className="text-white text-sm">Sign in</span>
-                        </Link>
-                      )}
-                      {isAdmin && (
-                        <Link href="/crm" className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#2a2a2a] transition-colors">
-                          <svg className="w-5 h-5 text-[#b3b3b3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10" />
-                          </svg>
-                          <span className="text-white text-sm">CRM Dashboard</span>
-                        </Link>
-                      )}
-                    </div>
+              {showBrowse && (
+                <div className="absolute right-0 mt-4 w-[320px] rounded-3xl border border-white/10 bg-[#120b0d]/95 p-4 shadow-2xl backdrop-blur-xl">
+                  <h3 className="mb-4 text-center text-base font-bold text-white">Browse</h3>
+                  <p className="mb-3 text-xs uppercase tracking-[0.25em] text-[#777]">Content</p>
+                  <div className="grid grid-cols-3 gap-3">
+                    <Link href="/movies" className="rounded-2xl border border-red-500/20 bg-black/20 p-4 text-center hover:bg-red-500/10">Movies</Link>
+                    <Link href="/tv" className="rounded-2xl border border-red-500/20 bg-black/20 p-4 text-center hover:bg-red-500/10">TV Shows</Link>
+                    <Link href="/anime" className="rounded-2xl border border-red-500/20 bg-black/20 p-4 text-center hover:bg-red-500/10">Anime</Link>
                   </div>
-                )}
-              </div>
+                  <p className="mb-3 mt-6 text-xs uppercase tracking-[0.25em] text-[#777]">Personal</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Link href="/history" className="rounded-2xl border border-white/10 bg-black/20 p-4 text-center text-[#bbb] hover:text-white">History</Link>
+                    <Link href="/watchlist" className="rounded-2xl border border-white/10 bg-black/20 p-4 text-center text-[#bbb] hover:text-white">Watchlist</Link>
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
+
+            <button onClick={() => setShowSearch(true)} className="rounded-full p-2 hover:bg-white/10" aria-label="Search">
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+            </button>
+
+            <div className="relative">
+              <button onClick={() => setShowProfiles((value) => !value)} className="rounded-full p-1 hover:bg-white/10" aria-label="Profiles">
+                <img src={currentProfile.avatar} alt={currentProfile.name} className="h-9 w-9 rounded-full bg-[#222]" />
+              </button>
+              {showProfiles && (
+                <div className="absolute right-0 mt-4 w-72 rounded-3xl border border-white/10 bg-[#101014]/95 p-4 shadow-2xl backdrop-blur-xl">
+                  <h3 className="mb-4 text-center text-base font-bold text-white">Who's watching?</h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    {defaultProfiles.map((profile) => (
+                      <button key={profile.id} onClick={() => selectProfile(profile)} className="rounded-2xl border border-white/10 bg-white/5 p-3 hover:bg-white/10">
+                        <img src={profile.avatar} alt={profile.name} className="mx-auto mb-2 h-16 w-16 rounded-xl" />
+                        <span className="text-sm text-white">{profile.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="mt-4 border-t border-white/10 pt-3">
+                    {isSignedIn ? (
+                      <button onClick={handleLogout} className="w-full rounded-xl bg-white/10 px-4 py-2 text-white hover:bg-white/15">Sign out</button>
+                    ) : (
+                      <Link href="/login" className="block w-full rounded-xl bg-[#e50914] px-4 py-2 text-center text-white hover:bg-[#f40612]">Sign in</Link>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </nav>
         </div>
       </header>
+
+      {showSearch && (
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/70 p-4 backdrop-blur-lg">
+          <form onSubmit={doSearch} className="w-full max-w-xl">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-white">Search</h2>
+              <button type="button" onClick={() => setShowSearch(false)} className="rounded-lg bg-white/10 p-2 text-white hover:bg-white/15">
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <input
+              autoFocus
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Type here to search..."
+              className="w-full rounded-2xl border border-white/10 bg-[#08080b] px-5 py-4 text-lg text-white outline-none focus:border-[#e50914]"
+            />
+          </form>
+        </div>
+      )}
     </>
   );
 }

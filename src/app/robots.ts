@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/api/', '/crm'],
+        disallow: ['/api/'],
       },
     ],
     sitemap: 'https://marqueeflix.netlify.app/sitemap.xml',

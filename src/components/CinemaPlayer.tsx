@@ -1,8 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { STREAMING_SOURCES } from '@/lib/movies/api';
 
 interface CinemaPlayerProps {
   tmdbId: number;
@@ -14,267 +13,120 @@ interface CinemaPlayerProps {
   autoPlay?: boolean;
 }
 
-interface StreamingSource {
-  id: string;
-  name: string;
-  quality: string;
-  getUrl: () => string;
-  working: boolean;
-}
-
 export default function CinemaPlayer({
   tmdbId,
   mediaType,
   season = 1,
   episode = 1,
   title,
-  posterPath,
   autoPlay = false,
 }: CinemaPlayerProps) {
   const router = useRouter();
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isTheaterMode, setIsTheaterMode] = useState(false);
-  const [selectedSource, setSelectedSource] = useState('vidcore');
   const [isLoading, setIsLoading] = useState(true);
-  const [showSources, setShowSources] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
   const [showControls, setShowControls] = useState(true);
   const controlsTimeoutRef = useRef<number | null>(null);
 
-  // Shared source list is ordered with ad-free providers first.
-  const sources: StreamingSource[] = STREAMING_SOURCES.map((source) => ({
-    id: source.id,
-    name: source.name,
-    quality: source.quality,
-    working: source.working,
-    getUrl: () => source.getUrl(tmdbId, mediaType, season, episode),
-  }));
+  const embedUrl = useMemo(() => {
+    const params = new URLSearchParams({
+      color: 'e50914',
+      autoPlay: String(autoPlay),
+    });
 
-  const currentSource = sources.find(s => s.id === selectedSource) || sources[0];
-  const embedUrl = currentSource.getUrl();
+    if (mediaType === 'tv') {
+      params.set('nextEpisode', 'true');
+      params.set('episodeSelector', 'true');
+      return `https://www.vidking.net/embed/tv/${tmdbId}/${season}/${episode}?${params.toString()}`;
+    }
+
+    return `https://www.vidking.net/embed/movie/${tmdbId}?${params.toString()}`;
+  }, [tmdbId, mediaType, season, episode, autoPlay]);
 
   useEffect(() => {
     setIsLoading(true);
   }, [embedUrl]);
 
-  // Auto-hide controls
   useEffect(() => {
     const handleMouseMove = () => {
       setShowControls(true);
-      if (controlsTimeoutRef.current) {
-        window.clearTimeout(controlsTimeoutRef.current);
-      }
-      controlsTimeoutRef.current = window.setTimeout(() => {
-        if (isPlaying) {
-          setShowControls(false);
-        }
-      }, 3000);
+      if (controlsTimeoutRef.current) window.clearTimeout(controlsTimeoutRef.current);
+      controlsTimeoutRef.current = window.setTimeout(() => setShowControls(false), 3000);
     };
 
-    if (containerRef.current) {
-      containerRef.current.addEventListener('mousemove', handleMouseMove);
-    }
-
+    const node = containerRef.current;
+    node?.addEventListener('mousemove', handleMouseMove);
     return () => {
-      if (controlsTimeoutRef.current) {
-        window.clearTimeout(controlsTimeoutRef.current);
-      }
-      if (containerRef.current) {
-        containerRef.current.removeEventListener('mousemove', handleMouseMove);
-      }
+      if (controlsTimeoutRef.current) window.clearTimeout(controlsTimeoutRef.current);
+      node?.removeEventListener('mousemove', handleMouseMove);
     };
-  }, [isPlaying]);
+  }, []);
 
   const handleTheaterMode = () => {
-    setIsTheaterMode(!isTheaterMode);
+    setIsTheaterMode((value) => !value);
     if (!isTheaterMode && containerRef.current) {
       containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   };
 
   const handleFullscreen = () => {
-    if (iframeRef.current) {
-      if (iframeRef.current.requestFullscreen) {
-        iframeRef.current.requestFullscreen();
-      }
-    }
-  };
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    iframeRef.current?.requestFullscreen?.();
   };
 
   return (
-    <div 
+    <div
       ref={containerRef}
-      className={`relative bg-black transition-all duration-500 ${
-        isTheaterMode 
-          ? 'fixed inset-0 z-[100] w-full h-full' 
-          : 'relative w-full aspect-video'
+      className={`relative overflow-hidden bg-black transition-all duration-500 ${
+        isTheaterMode ? 'fixed inset-0 z-[100] h-full w-full' : 'w-full rounded-2xl border border-white/10 aspect-video'
       }`}
     >
-      {/* Top Control Bar - Cineby/Dulo.gd style */}
-      <div className={`absolute top-0 left-0 right-0 z-50 bg-gradient-to-b from-black/90 via-black/70 to-transparent p-4 transition-opacity duration-300 ${
-        showControls || !isPlaying ? 'opacity-100' : 'opacity-0'
-      }`}>
-        <div className="flex items-center justify-between max-w-[1920px] mx-auto">
-          {/* Title & Info */}
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => router.back()}
-              className="p-2 text-white hover:bg-white/10 rounded-full transition-colors"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
+      <div className={`absolute left-0 right-0 top-0 z-50 bg-gradient-to-b from-black/90 via-black/50 to-transparent p-4 transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'}`}>
+        <div className="mx-auto flex max-w-[1920px] items-center justify-between gap-4">
+          <div className="flex min-w-0 items-center gap-3">
+            <button onClick={() => router.back()} className="rounded-full p-2 text-white transition-colors hover:bg-white/10" aria-label="Go back">
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
             </button>
-            <div>
-              <h2 className="text-white text-lg font-bold truncate max-w-md">
-                {title || 'Now Playing'}
-              </h2>
-              {mediaType === 'tv' && (
-                <span className="text-[#b3b3b3] text-sm">
-                  Season {season} • Episode {episode}
-                </span>
-              )}
+            <div className="min-w-0">
+              <h2 className="truncate text-lg font-bold text-white">{title || 'Now playing'}</h2>
+              <p className="text-xs font-medium uppercase tracking-[0.25em] text-[#e50914]">VidKing Player</p>
             </div>
           </div>
 
-          {/* Right Controls */}
-          <div className="flex items-center gap-3">
-            {/* Theater Mode */}
-            <button
-              onClick={handleTheaterMode}
-              className="p-2 text-white hover:bg-white/10 rounded-lg transition-colors"
-              title={isTheaterMode ? 'Exit Theater Mode' : 'Theater Mode'}
-            >
-              {isTheaterMode ? (
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5l5.25 5.25" />
-                </svg>
-              ) : (
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                </svg>
-              )}
+          <div className="flex items-center gap-2">
+            <button onClick={handleTheaterMode} className="rounded-lg p-2 text-white transition-colors hover:bg-white/10" aria-label="Theater mode">
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
             </button>
-
-            {/* Fullscreen */}
-            <button
-              onClick={handleFullscreen}
-              className="p-2 text-white hover:bg-white/10 rounded-lg transition-colors"
-              title="Fullscreen"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-              </svg>
+            <button onClick={handleFullscreen} className="rounded-lg p-2 text-white transition-colors hover:bg-white/10" aria-label="Fullscreen">
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3M3 16v3a2 2 0 002 2h3m8 0h3a2 2 0 002-2v-3" /></svg>
             </button>
-
-            {/* Close */}
             {isTheaterMode && (
-              <button
-                onClick={handleTheaterMode}
-                className="p-2 text-white hover:bg-red-500/20 rounded-lg transition-colors"
-                title="Close"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+              <button onClick={handleTheaterMode} className="rounded-lg p-2 text-white transition-colors hover:bg-red-500/20" aria-label="Close theater mode">
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             )}
           </div>
         </div>
       </div>
 
-      {/* Server/Source Selector - Bottom Left like Dulo.gd */}
-      <div className={`absolute bottom-0 left-0 z-50 p-4 transition-opacity duration-300 ${
-        showControls || !isPlaying ? 'opacity-100' : 'opacity-0'
-      }`}>
-        <div className="relative">
-          <button
-            onClick={() => setShowSources(!showSources)}
-            className="flex items-center gap-2 px-4 py-2.5 bg-black/80 backdrop-blur-md text-white rounded-lg hover:bg-black/90 transition-all border border-[#333] hover:border-[#e50914]"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-            </svg>
-            <span className="font-medium">{currentSource.name}</span>
-            <span className="px-2 py-0.5 bg-[#e50914] text-white text-xs rounded-full">{currentSource.quality}</span>
-            <svg className={`w-4 h-4 transition-transform ${showSources ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-
-          {/* Source Dropdown */}
-          {showSources && (
-            <div className="absolute bottom-full left-0 mb-2 bg-[#1a1a1a] rounded-lg shadow-2xl overflow-hidden min-w-[220px] border border-[#333]">
-              <div className="p-2 border-b border-[#333]">
-                <p className="text-[#666] text-xs font-medium px-2">Select Server</p>
-              </div>
-              {sources.map((source) => (
-                <button
-                  key={source.id}
-                  onClick={() => {
-                    setSelectedSource(source.id);
-                    setShowSources(false);
-                  }}
-                  className={`w-full px-4 py-3 text-left hover:bg-[#2a2a2a] transition-colors flex items-center justify-between group ${
-                    selectedSource === source.id ? 'bg-[#e50914]/10' : ''
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`w-2 h-2 rounded-full ${source.working ? 'bg-green-500' : 'bg-red-500'}`} />
-                    <div>
-                      <p className={`font-medium ${selectedSource === source.id ? 'text-[#e50914]' : 'text-white'}`}>
-                        {source.name}
-                      </p>
-                      <p className="text-[#666] text-xs">{source.quality}</p>
-                    </div>
-                  </div>
-                  {selectedSource === source.id && (
-                    <svg className="w-5 h-5 text-[#e50914]" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  )}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Loading State */}
       {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black z-40">
+        <div className="absolute inset-0 z-40 flex items-center justify-center bg-black">
           <div className="text-center">
-            <div className="w-16 h-16 border-4 border-[#e50914] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-white font-medium">Loading stream...</p>
-            <p className="text-[#666] text-sm mt-2">{currentSource.name} • {currentSource.quality}</p>
-            <button
-              onClick={() => setIsLoading(false)}
-              className="mt-4 px-4 py-2 bg-[#333] hover:bg-[#444] text-white rounded-lg text-sm transition-colors"
-            >
-              Cancel
-            </button>
+            <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-[#e50914] border-t-transparent" />
+            <p className="text-sm text-[#aaa]">Loading VidKing...</p>
           </div>
         </div>
       )}
 
-      {/* Video Iframe - NO SANDBOX */}
       <iframe
         ref={iframeRef}
         src={embedUrl}
-        className="w-full h-full"
+        className="h-full w-full"
         frameBorder="0"
         allowFullScreen
         allow="autoplay; fullscreen; picture-in-picture; encrypted-media; clipboard-write"
-        title="Video Player"
         referrerPolicy="strict-origin-when-cross-origin"
+        title="VidKing player"
         onLoad={() => setIsLoading(false)}
       />
     </div>
